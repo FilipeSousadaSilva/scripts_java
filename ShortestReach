@@ -1,0 +1,52 @@
+import java.util.*;
+
+class Solution {
+    static int[] shortestReach(int n, int[][] edges, int s) {
+        // Create a map to store the graph as an adjacency list
+        Map<Integer, List<int[]>> graph = new HashMap<>();
+        for (int[] edge : edges) {
+            int u = edge[0], v = edge[1], w = edge[2];
+            if (!graph.containsKey(u)) {
+                graph.put(u, new ArrayList<>());
+            }
+            if (!graph.containsKey(v)) {
+                graph.put(v, new ArrayList<>());
+            }
+            graph.get(u).add(new int[] {v, w});
+            graph.get(v).add(new int[] {u, w});
+        }
+
+        // Initialize the distances to infinity for all nodes except the start node
+        int[] distances = new int[n];
+        Arrays.fill(distances, Integer.MAX_VALUE);
+        distances[s] = 0;
+
+        // Use a queue to keep track of the nodes to visit
+        Queue<int[]> queue = new LinkedList<>();
+        queue.add(new int[] {s, 0});
+        Set<Integer> visited = new HashSet<>();
+        while (!queue.isEmpty()) {
+            int[] node = queue.poll();
+            int u = node[0], distance = node[1];
+            if (visited.contains(u)) {
+                continue;
+            }
+            visited.add(u);
+            for (int[] neighbor : graph.get(u)) {
+                int v = neighbor[0], w = neighbor[1];
+                if (!visited.contains(v)) {
+                    distances[v] = Math.min(distances[v], distance + w);
+                    queue.add(new int[] {v, distance + w});
+                }
+            }
+        }
+
+        // Return the list of distances, replacing infinity with -1 for the unreachable nodes
+        for (int i = 0; i < distances.length; i++) {
+            if (distances[i] == Integer.MAX_VALUE) {
+                distances[i] = -1;
+            }
+        }
+        return distances;
+    }
+}
